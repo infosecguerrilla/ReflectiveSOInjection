@@ -4,3 +4,11 @@ Reflective SO Injection was inspired by the concept of Reflective DLL Injection.
 
 If you are interested in reading more about how this works please read the following blog post
 https://infosecguerrilla.wordpress.com/2016/07/21/reflective-so-injection/
+
+Known Issues
+1. SELinux can prevent creation of a RWX mapping in target process causing loader to fail.
+
+Tested on
+* Ubuntu 14.04 x86_64
+* Debian 8 x86_64
+* Centos 6.8 x86_64
