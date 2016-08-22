@@ -87,7 +87,7 @@ int ReflectiveLoader()
 	void*  (*libdl_dlsym)(void *handle, const char *symbol); /* We used dlsym because it is able to handle IFUNC function type something __libc_dlsym cannot for some reason   */
 												     /* See this post for more information - https://infosecguerrilla.wordpress.com/2016/07/28/glibc-strange-behavior/ */
 	unsigned int index;
-	char libdl_s[9];
+	char libdl_s[11];
 		 libdl_s[0] = 'l';
 		 libdl_s[1] = 'i';
 		 libdl_s[2] = 'b';
@@ -96,7 +96,9 @@ int ReflectiveLoader()
 		 libdl_s[5] = '.';
 		 libdl_s[6] = 's';
 	     libdl_s[7] = 'o';
-		 libdl_s[8] = '\0';
+		 libdl_s[8] = '.';
+		 libdl_s[9] = '2';
+		 libdl_s[10] = '\0';
 
 	char dlsym_s[6];
 		 dlsym_s[0] = 'd';
@@ -222,6 +224,7 @@ int ReflectiveLoader()
 	/* Find dlsym using __libc_dlsym - https://infosecguerrilla.wordpress.com/2016/07/28/glibc-strange-behavior/ */
 
 	void *libdlhandle = (*libc_dlopen)(libdl_s, RTLD_LAZY);
+	debug("[+] Opened libdl with handle libdlhandle=%p", libdlhandle);
 	libdl_dlsym = (*libc_dlsym)(libdlhandle, dlsym_s);
 	debug("[+] Found libdl_dlsym at %p", libdl_dlsym);
 
@@ -242,7 +245,7 @@ int ReflectiveLoader()
 		return -1;
 	}
 
-	//Round process base address to page size (not required)
+	//Round process base address to page size
 	this.baseaddr += (unsigned long)(0x1000 - ((unsigned long)this.baseaddr & 0x00000FFF));
 
 	if((*libc_mprotect)(this.baseaddr, size, PROT_READ | PROT_WRITE | PROT_EXEC) != 0)
@@ -655,7 +658,7 @@ call_program_constructors(ELF_FILE e)
 	for(int i = 1; i < INIT_ARRAYSZ; i++)
 	{
 		constructor = (uint64_t)INIT_ARRAY[i] + (uint64_t)e.baseaddr;
-	
+		
 		if(INIT_ARRAY[i] == 0)
 			break;
 
